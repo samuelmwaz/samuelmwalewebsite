@@ -9,15 +9,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* --- Default (Dark Mode) Variables --- */
         :root {
-            --dark-background: #1a1a1a;
-            --dark-surface: #262626;
+            --background: #1a1a1a;
+            --surface: #262626;
             --text-color: #d4d4d4;
             --light-text: #f0f0f0;
             --accent-gold: #b3a06c;
             --border-color: #444;
+            --footer-bg: #111;
+            --bubble-color: rgba(179, 160, 108, 0.15); /* Semi-transparent gold */
+            /* NEW: Brown variables for pins/new bubbles */
+            --brown-dark: #654321; /* Darker brown for pins */
+            --brown-bubble: rgba(101, 67, 33, 0.2); /* Semi-transparent brown */
         }
 
+        /* --- Light Mode Variables --- */
+        body.light-mode {
+            --background: #f8f8f8;
+            --surface: #ffffff;
+            --text-color: #333333;
+            --light-text: #1a1a1a;
+            --accent-gold: #a07a3c;
+            --border-color: #e0e0e0;
+            --footer-bg: #e8e8e8;
+            --bubble-color: rgba(160, 122, 60, 0.1); /* Semi-transparent gold */
+            /* NEW: Light mode brown variables for pins/new bubbles */
+            --brown-dark: #a0522d; /* Sienna/lighter brown for pins */
+            --brown-bubble: rgba(160, 82, 45, 0.15); /* Semi-transparent brown */
+        }
+
+        /* Global Styles */
         * {
             margin: 0;
             padding: 0;
@@ -26,18 +48,136 @@
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: var(--dark-background);
+            background-color: var(--background);
             color: var(--text-color);
             line-height: 1.6;
+            transition: background-color 0.5s, color 0.5s; /* Smooth transition */
+            position: relative; /* Needed for absolute positioning of bubbles */
+            min-height: 100vh;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
+            position: relative; /* Ensures content stays above bubbles */
+            z-index: 10;
         }
 
-        /* --- Header & Navigation --- */
+        /* --- Bubble Styles and Animations (Original, kept behind content) --- */
+        .bubbles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1; /* Keep bubbles behind content */
+            pointer-events: none;
+        }
+
+        .bubble {
+            position: absolute;
+            display: block;
+            list-style: none;
+            width: 20px;
+            height: 20px;
+            background: var(--bubble-color);
+            border-radius: 50%;
+            animation: bubble-float 25s linear infinite;
+            bottom: -150px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+        }
+
+        @keyframes bubble-float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+                border-radius: 0;
+            }
+            100% {
+                transform: translateY(-1000px) rotate(720deg);
+                opacity: 0;
+                border-radius: 50%;
+            }
+        }
+        
+        /* Bubble variations for random sizes and speeds */
+        .bubble:nth-child(1) { left: 25%; width: 80px; height: 80px; animation-duration: 20s; animation-delay: 0s; }
+        .bubble:nth-child(2) { left: 10%; width: 20px; height: 20px; animation-duration: 12s; animation-delay: 2s; }
+        .bubble:nth-child(3) { left: 70%; width: 25px; height: 25px; animation-duration: 25s; animation-delay: 4s; }
+        .bubble:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-duration: 15s; animation-delay: 0s; }
+        .bubble:nth-child(5) { left: 65%; width: 15px; height: 15px; animation-duration: 30s; animation-delay: 0s; }
+        .bubble:nth-child(6) { left: 80%; width: 90px; height: 90px; animation-duration: 35s; animation-delay: 3s; }
+        .bubble:nth-child(7) { left: 35%; width: 150px; height: 150px; animation-duration: 40s; animation-delay: 7s; }
+        .bubble:nth-child(8) { left: 50%; width: 25px; height: 25px; animation-duration: 18s; animation-delay: 15s; }
+        .bubble:nth-child(9) { left: 15%; width: 50px; height: 50px; animation-duration: 22s; animation-delay: 2s; }
+        .bubble:nth-child(10) { left: 85%; width: 110px; height: 110px; animation-duration: 27s; animation-delay: 10s; }
+
+
+        /* --- NEW: Pin/Horizontal Bubble Styles and Animations --- */
+        .pins {
+            position: fixed; /* Fixed position so they move with the viewport */
+            top: 0;
+            left: 0;
+            width: 200vw; /* Double the width for continuous movement */
+            height: 100vh;
+            overflow: hidden;
+            z-index: 20; /* Set above content (z-index: 10) for "on top" effect */
+            pointer-events: none;
+            animation: move-horizontal 60s linear infinite; /* Animation applied to the container */
+            display: flex; /* Helps place children horizontally */
+            flex-wrap: nowrap;
+        }
+
+        .pin {
+            position: absolute;
+            display: block;
+            width: 40px;
+            height: 40px;
+            list-style: none;
+            background: var(--brown-dark);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            opacity: 0.7;
+            transform: rotate(45deg); /* Optional: make it look more like a pin head */
+            transition: background 0.5s;
+        }
+        
+        .pin.bubble-style {
+            background: var(--brown-bubble);
+            border-radius: 50%;
+            transform: none;
+            width: 50px;
+            height: 50px;
+            opacity: 0.9;
+        }
+
+        @keyframes move-horizontal {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); } /* Moves half the container's width (100vw) */
+        }
+        
+        /* Specific pin/bubble positioning and variations */
+        .pin:nth-child(1) { top: 10%; left: 5%; width: 30px; height: 30px; animation-delay: 0s;}
+        .pin:nth-child(2) { top: 80%; left: 15%; width: 20px; height: 20px; animation-delay: 5s;}
+        .pin:nth-child(3) { top: 35%; left: 30%; width: 50px; height: 50px; animation-delay: 10s;}
+        .pin:nth-child(4) { top: 60%; left: 45%; width: 40px; height: 40px; animation-delay: 15s;}
+        .pin:nth-child(5) { top: 20%; left: 60%; width: 25px; height: 25px; animation-delay: 20s;}
+        .pin:nth-child(6) { top: 70%; left: 75%; width: 60px; height: 60px; animation-delay: 25s;}
+        .pin:nth-child(7) { top: 45%; left: 90%; width: 35px; height: 35px; animation-delay: 30s;}
+        
+        /* Repeat the pattern beyond 100% width to make the loop continuous */
+        .pin:nth-child(8) { top: 15%; left: 105%; width: 45px; height: 45px; animation-delay: 0s;}
+        .pin:nth-child(9) { top: 85%; left: 115%; width: 25px; height: 25px; animation-delay: 5s;}
+        .pin:nth-child(10) { top: 40%; left: 130%; width: 55px; height: 55px; animation-delay: 10s;}
+        .pin:nth-child(11) { top: 65%; left: 145%; width: 30px; height: 30px; animation-delay: 15s;}
+        .pin:nth-child(12) { top: 25%; left: 160%; width: 50px; height: 50px; animation-delay: 20s;}
+        .pin:nth-child(13) { top: 75%; left: 175%; width: 40px; height: 40px; animation-delay: 25s;}
+        .pin:nth-child(14) { top: 50%; left: 190%; width: 65px; height: 65px; animation-delay: 30s;}
+
+
+        /* --- Header & Navigation (Other styles remain largely the same) --- */
         .top-header {
             display: flex;
             justify-content: space-between;
@@ -47,28 +187,34 @@
             color: var(--light-text);
         }
 
-        .top-nav a {
+        .top-nav a, .top-icons a {
             color: var(--text-color);
             text-decoration: none;
             font-size: 0.9rem;
             margin-right: 25px;
             transition: color 0.3s ease;
         }
+        
+        .top-icons a { margin-left: 25px; margin-right: 0;}
 
-        .top-nav a:hover {
+        .top-nav a:hover, .top-icons a:hover {
             color: var(--accent-gold);
         }
-
-        .top-icons a {
+        
+        .mode-toggle {
+            cursor: pointer;
+            font-size: 1.2rem;
             color: var(--text-color);
-            text-decoration: none;
-            margin-left: 25px;
-            font-size: 0.9rem;
-            transition: color 0.3s ease;
+            margin-left: 20px;
+            padding: 5px;
+            border: none;
+            background: none;
+            transition: color 0.3s ease, transform 0.3s ease;
         }
-
-        .top-icons a:hover {
+        
+        .mode-toggle:hover {
             color: var(--accent-gold);
+            transform: scale(1.1);
         }
 
         .main-header {
@@ -93,8 +239,9 @@
         }
 
         .bottom-nav {
-            background-color: var(--dark-surface);
+            background-color: var(--surface);
             padding: 15px 0;
+            border-top: 1px solid var(--border-color);
         }
 
         .bottom-nav ul {
@@ -118,7 +265,7 @@
             color: var(--accent-gold);
         }
 
-        /* --- Hero/Intro Section --- */
+        /* --- Intro Section --- */
         .intro {
             text-align: center;
             padding: 60px 0 80px;
@@ -139,7 +286,7 @@
             font-weight: 500;
         }
 
-        /* --- Gifts Section (now Services) --- */
+        /* --- Services Section --- */
         .gifts-section {
             padding-bottom: 80px;
         }
@@ -167,11 +314,11 @@
         }
 
         .category-card {
-            background-color: var(--dark-surface);
+            background-color: var(--surface);
             border: 1px solid var(--border-color);
             padding: 20px;
             text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.5s;
             cursor: pointer;
             overflow: hidden;
         }
@@ -179,6 +326,12 @@
         .category-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Card Image Animation Keyframes (Right to Left) */
+        @keyframes moveRightToLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-20%); } 
         }
 
         .card-image {
@@ -191,24 +344,26 @@
             font-size: 0.9rem;
             margin-bottom: 15px;
             position: relative;
-            overflow: hidden;
+            overflow: hidden; 
         }
 
         .card-image img {
-            width: 100%;
+            width: 120%; 
             height: 100%;
             object-fit: cover;
             object-position: center;
+            animation: moveRightToLeft 10s linear infinite alternate;
         }
         
         .card-image-label {
             position: relative;
             top: -20px;
-            background-color: var(--dark-surface);
+            background-color: var(--surface);
             padding: 5px 15px;
             color: var(--text-color);
             font-size: 0.85rem;
             font-weight: 500;
+            transition: background-color 0.5s;
         }
 
         .card-title {
@@ -282,11 +437,12 @@
         /* --- Footer Placeholder --- */
         .footer-placeholder {
             height: 150px;
-            background-color: #111;
+            background-color: var(--footer-bg);
             text-align: center;
             padding-top: 50px;
             color: var(--text-color);
             font-size: 0.8rem;
+            transition: background-color 0.5s;
         }
 
         /* --- Responsive Design --- */
@@ -311,6 +467,37 @@
     </style>
 </head>
 <body>
+    
+<div class="bubbles">
+    <span class="bubble"></span>
+    <span class="bubble"></span>
+    <span class="bubble"></span>
+    <span class="bubble"></span>
+    <span class="bubble"></span>
+    <span class="bubble"></span>
+    <span class="bubble"></span>
+    <span class="bubble"></span>
+    <span class="bubble"></span>
+    <span class="bubble"></span>
+</div>
+
+<div class="pins">
+    <span class="pin" style="top: 10%; left: 5%;"></span>
+    <span class="pin" style="top: 80%; left: 15%;"></span>
+    <span class="pin" style="top: 35%; left: 30%;"></span>
+    <span class="pin" style="top: 60%; left: 45%;"></span>
+    <span class="pin bubble-style" style="top: 20%; left: 60%;"></span>
+    <span class="pin bubble-style" style="top: 70%; left: 75%;"></span>
+    <span class="pin bubble-style" style="top: 45%; left: 90%;"></span>
+    
+    <span class="pin" style="top: 15%; left: 105%;"></span>
+    <span class="pin" style="top: 85%; left: 115%;"></span>
+    <span class="pin" style="top: 40%; left: 130%;"></span>
+    <span class="pin" style="top: 65%; left: 145%;"></span>
+    <span class="pin bubble-style" style="top: 25%; left: 160%;"></span>
+    <span class="pin bubble-style" style="top: 75%; left: 175%;"></span>
+    <span class="pin bubble-style" style="top: 50%; left: 190%;"></span>
+</div>
 
 <header>
     <div class="top-header container">
@@ -322,6 +509,9 @@
             <a href="#">Search</a>
             <a href="#">Account</a>
             <a href="#">Basket</a>
+            <button id="modeToggle" class="mode-toggle" aria-label="Toggle Light/Dark Mode">
+                <i class="fas fa-sun" id="modeIcon"></i>
+            </button>
         </div>
     </div>
 
@@ -355,7 +545,7 @@
         <div class="category-grid">
             <div class="category-card">
                 <div class="card-image">
-                    <img src="3.jpg" alt="Custom Website Design">
+                    <img src=" images/l.jpg" alt="Custom Website Design">
                 </div>
                 <div class="card-image-label">Custom Design</div>
                 <h3 class="card-title">Custom Websites</h3>
@@ -364,7 +554,7 @@
             </div>
             <div class="category-card">
                 <div class="card-image">
-                    <img src="l.jpg" alt="E-commerce Store">
+                    <img src="images/st.jpg " alt="E-commerce Store">
                 </div>
                 <div class="card-image-label">Online Stores</div>
                 <h3 class="card-title">E-Commerce</h3>
@@ -373,12 +563,21 @@
             </div>
             <div class="category-card">
                 <div class="card-image">
-                    <img src="1.jpg" alt="Portfolio Website">
+                    <img src=" images/3.jpg" alt="Portfolio Website">
                 </div>
                 <div class="card-image-label">Portfolio & Blogs</div>
                 <h3 class="card-title">Portfolio Sites</h3>
                 <div class="card-price">K15,000 - K17,000</div>
                 <p class="card-description">Professional portfolio and blog websites to showcase your work and share your expertise online.</p>
+            </div>
+            <div class="category-card">
+                <div class="card-image">
+                    <img src=" images/sim.jpg" alt="Standard Website Design">
+                </div>
+                <div class="card-image-label">Quick Launch</div>
+                <h3 class="card-title">Standard Websites</h3>
+                <div class="card-price">K3,000 - K7,000</div>
+                <p class="card-description">Simple, fast, and professional websites ideal for quick launch or informational sites. Price depends on time duration needed.</p>
             </div>
         </div>
         
@@ -404,6 +603,9 @@
             <a href="https://wa.me/260971456603" target="_blank" aria-label="WhatsApp">
                 <i class="fab fa-whatsapp"></i>
             </a>
+            <a href=" https://www.linkedin.com/in/samuel-mwale-448068290/" target="_blank" aria-label="LinkedIn">
+                <i class="fab fa-linkedin"></i>
+            </a>
         </div>
     </section>
 </main>
@@ -411,6 +613,43 @@
 <div class="footer-placeholder">
     <p>&copy; 2025 Samuel Website Maker. All Rights Reserved.</p>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggleButton = document.getElementById('modeToggle');
+        const modeIcon = document.getElementById('modeIcon');
+        const body = document.body;
+
+        // Check for saved theme preference or system preference
+        const savedTheme = localStorage.getItem('theme');
+        const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+
+        if (savedTheme === 'light' || (!savedTheme && prefersLight)) {
+            body.classList.add('light-mode');
+            modeIcon.classList.remove('fa-sun');
+            modeIcon.classList.add('fa-moon');
+        } else {
+            // Default is Dark Mode
+            modeIcon.classList.remove('fa-moon');
+            modeIcon.classList.add('fa-sun');
+        }
+
+        toggleButton.addEventListener('click', () => {
+            body.classList.toggle('light-mode');
+
+            // Update icon and save preference
+            if (body.classList.contains('light-mode')) {
+                modeIcon.classList.remove('fa-sun');
+                modeIcon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            } else {
+                modeIcon.classList.remove('fa-moon');
+                modeIcon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+    });
+</script>
 
 </body>
 </html>
